@@ -3,6 +3,7 @@ from PyQt5 import QtGui
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtGui import QPainter, QBrush, QPen, QPolygon, QImage, QPalette, QColor
 from PyQt5.QtCore import Qt, QSize, QTimer,QDateTime, QPoint, QPointF, QLineF, QRect
+from fbs_runtime.application_context.PyQt5 import ApplicationContext
 
 import sys
 import numpy as np
@@ -12,7 +13,6 @@ from planet import Planet
 from ship import Ship
 from bullet import Bullet
 from const import *
-
 
 class Window(QMainWindow):
     def __init__(self):
@@ -87,10 +87,14 @@ class Window(QMainWindow):
     
 
     def draw_bg(self):
+        global appctxt
+        image_path_outer = appctxt.get_resource("outer.png")
+        image_path_inner = appctxt.get_resource("inner.png")
+
         if self.out_zoom:
-            oImage = QImage("assets/outer.png")
+            oImage = QImage(image_path_outer)
         else:
-            oImage = QImage("assets/inner.png")
+            oImage = QImage(image_path_inner)
         sImage = oImage.scaled(QSize(WINDOW_WIDTH,WINDOW_WIDTH))
         palette = QPalette()
         palette.setBrush(QPalette.Window, QBrush(sImage))                        
@@ -220,11 +224,14 @@ class Window(QMainWindow):
             self.timer.stop()
             self.active_ship_id += 1
             self.active_ship_id = self.active_ship_id%len(self.ships)
+            self.out_zoom = False
+            self.draw_bg()
 
+appctxt = ApplicationContext()
 
 App = QApplication(sys.argv)
 window = Window()
 
 
-
+exit_code = appctxt.app.exec_()
 sys.exit(App.exec())
